@@ -69,6 +69,23 @@
             </div>
             <p class="label">Current destination</p>
             <p id="current-dest" class="dest"></p>
+            <div class="save-key card-inset">
+              <p class="label">Save this — your edit key</p>
+              <p class="save-key-note">
+                No account: this token is the only way to change the destination later. Copy it
+                or bookmark the manage link.
+              </p>
+              <p class="label">Edit token</p>
+              <div class="copy-row">
+                <code id="edit-token-display"></code>
+                <button type="button" class="btn btn-ghost" id="copy-token">Copy token</button>
+              </div>
+              <p class="label">Manage link</p>
+              <div class="copy-row">
+                <code id="manage-url-display"></code>
+                <button type="button" class="btn btn-ghost" id="copy-manage">Copy link</button>
+              </div>
+            </div>
             <div class="actions">
               <a class="btn btn-primary" id="manage-link" href="#">Update destination</a>
               <button type="button" class="btn btn-ghost" id="download-png">Download PNG</button>
@@ -126,7 +143,6 @@
       <p class="fine">© Eva Akselrad / Ownstage</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
     <script type="module" src="/app.js"></script>
   </body>
 </html>

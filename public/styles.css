@@ -173,6 +173,11 @@ input:focus {
   filter: brightness(1.05);
 }
 
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--text);
@@ -244,6 +249,20 @@ code {
 .dest {
   margin: 0 0 1.25rem;
   word-break: break-all;
+}
+
+.card-inset {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 171, 75, 0.35);
+  background: rgba(7, 11, 18, 0.45);
+}
+
+.save-key-note {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
 .actions {
