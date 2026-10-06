@@ -4,16 +4,17 @@ let currentUser = null;
 let usage = null;
 
 function show(id) {
-  for (const el of document.querySelectorAll(".hero")) {
+  for (const el of document.querySelectorAll(".page-view")) {
     el.classList.toggle("hidden", el.id !== id);
   }
+  document.body.classList.toggle("has-landing-hero", id === "view-create");
 }
 
 async function drawQr(canvas, text) {
   await QRCode.toCanvas(canvas, text, {
     width: canvas.width,
     margin: 2,
-    color: { dark: "#070b12", light: "#ffffff" },
+    color: { dark: "#0e0c0a", light: "#ffffff" },
   });
 }
 
@@ -113,7 +114,7 @@ async function openDashboard() {
         <span class="link-list-dest">${escapeHtml(link.destination)}</span>
       </div>
       <div class="link-list-actions">
-        <a class="btn btn-ghost btn-sm" href="/manage/${link.id}">Edit</a>
+        <a class="btn btn--ghost btn--sm" href="/manage/${link.id}">Edit</a>
       </div>
     `;
     list.appendChild(li);
