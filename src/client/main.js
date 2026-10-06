@@ -1,21 +1,35 @@
-import QRCode from "qrcode";
+import { initQrPanel } from "./qr-panel.js";
 
 let currentUser = null;
 let usage = null;
+const resultQrCtx = { id: "", shortUrl: "" };
+const manageQrCtx = { id: "", shortUrl: "" };
+
+const resultQrPanel = initQrPanel({
+  getCtx: () => resultQrCtx,
+  canvasId: "qr-canvas",
+  logoInputId: "logo-input-result",
+  logoClearId: "logo-clear-result",
+  logoPreviewId: "logo-preview-result",
+  pngBtnId: "download-png-result",
+  svgBtnId: "download-svg-result",
+});
+
+const manageQrPanel = initQrPanel({
+  getCtx: () => manageQrCtx,
+  canvasId: "manage-qr",
+  logoInputId: "logo-input-manage",
+  logoClearId: "logo-clear-manage",
+  logoPreviewId: "logo-preview-manage",
+  pngBtnId: "download-png-manage",
+  svgBtnId: "download-svg-manage",
+});
 
 function show(id) {
   for (const el of document.querySelectorAll(".page-view")) {
     el.classList.toggle("hidden", el.id !== id);
   }
   document.body.classList.toggle("has-landing-hero", id === "view-create");
-}
-
-async function drawQr(canvas, text) {
-  await QRCode.toCanvas(canvas, text, {
-    width: canvas.width,
-    margin: 2,
-    color: { dark: "#0e0c0a", light: "#ffffff" },
-  });
 }
 
 async function api(path, options = {}) {
@@ -166,7 +180,9 @@ async function openManage(id, bearerToken = null) {
   document.getElementById("manage-short-url").textContent = info.shortUrl;
   document.getElementById("new-destination").value = info.destination;
   document.getElementById("new-label").value = info.label || "";
-  await drawQr(document.getElementById("manage-qr"), info.shortUrl);
+  manageQrCtx.id = id;
+  manageQrCtx.shortUrl = info.shortUrl;
+  await manageQrPanel.refresh();
 
   const form = document.getElementById("update-form");
   const status = document.getElementById("manage-status");
@@ -220,25 +236,16 @@ async function showResult(data) {
   document.getElementById("current-dest").textContent = data.destination;
   document.getElementById("manage-link").href = `/manage/${data.id}`;
 
-  const canvas = document.getElementById("qr-canvas");
-  const downloadBtn = document.getElementById("download-png");
-  downloadBtn.disabled = true;
+  resultQrCtx.id = data.id;
+  resultQrCtx.shortUrl = data.shortUrl;
   try {
-    await drawQr(canvas, data.shortUrl);
-    downloadBtn.disabled = false;
+    await resultQrPanel.refresh();
   } catch (err) {
     console.error(err);
     alert("Couldn't render the QR. Refresh and try again.");
   }
 
   wireCopyButton("copy-short", () => data.shortUrl);
-
-  downloadBtn.onclick = () => {
-    const link = document.createElement("a");
-    link.download = `ownstage-qr-${data.id}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
 
   document.getElementById("new-qr").onclick = () => {
     history.pushState({}, "", "/");

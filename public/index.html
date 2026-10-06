@@ -93,9 +93,25 @@
                   <span class="field__label">Goes to</span>
                   <p id="current-dest" class="field__value"></p>
                 </div>
-                <div class="actions">
+                <div class="qr-customize">
+                  <span class="field__label">Center image <span class="optional">this device only</span></span>
+                  <div class="logo-row">
+                    <img id="logo-preview-result" class="logo-preview hidden" alt="" width="40" height="40" />
+                    <label class="btn btn--ghost btn--sm file-label">
+                      Upload image
+                      <input type="file" id="logo-input-result" accept="image/*" hidden />
+                    </label>
+                    <button type="button" class="btn btn--ghost btn--sm hidden" id="logo-clear-result">
+                      Remove
+                    </button>
+                  </div>
+                  <div class="actions">
+                    <button type="button" class="btn btn--ghost" id="download-png-result">PNG</button>
+                    <button type="button" class="btn btn--ghost" id="download-svg-result">SVG</button>
+                  </div>
+                </div>
+                <div class="actions actions--top">
                   <a class="btn btn--primary" id="manage-link" href="#">Edit link</a>
-                  <button type="button" class="btn btn--ghost" id="download-png">Download PNG</button>
                 </div>
               </div>
             </div>
@@ -154,8 +170,27 @@
           <div class="band__inner band__inner--wide">
             <h1>Edit link</h1>
             <div class="manage-layout panel">
-              <div class="qr-wrap">
-                <canvas id="manage-qr" width="220" height="220"></canvas>
+              <div class="manage-qr-col">
+                <div class="qr-wrap">
+                  <canvas id="manage-qr" width="220" height="220"></canvas>
+                </div>
+                <div class="qr-customize qr-customize--compact">
+                  <span class="field__label">Center image <span class="optional">this device only</span></span>
+                  <div class="logo-row">
+                    <img id="logo-preview-manage" class="logo-preview hidden" alt="" width="40" height="40" />
+                    <label class="btn btn--ghost btn--sm file-label">
+                      Upload
+                      <input type="file" id="logo-input-manage" accept="image/*" hidden />
+                    </label>
+                    <button type="button" class="btn btn--ghost btn--sm hidden" id="logo-clear-manage">
+                      Remove
+                    </button>
+                  </div>
+                  <div class="actions">
+                    <button type="button" class="btn btn--ghost btn--sm" id="download-png-manage">PNG</button>
+                    <button type="button" class="btn btn--ghost btn--sm" id="download-svg-manage">SVG</button>
+                  </div>
+                </div>
               </div>
               <div class="manage-form">
                 <div class="field">
