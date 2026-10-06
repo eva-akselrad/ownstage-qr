@@ -25,7 +25,9 @@ npm run dev
 npm run deploy
 ```
 
-Set `PUBLIC_BASE_URL` in `wrangler.toml` to your production URL after the first deploy.
+**Live:** https://ownstage-qr.scienceandfire66.workers.dev
+
+Set `PUBLIC_BASE_URL` in `wrangler.toml` if you add a custom domain (e.g. `qr.ownstage.app`).
 
 ## License
 
