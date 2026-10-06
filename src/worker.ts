@@ -14,6 +14,14 @@ export interface Env {
   LINKS: KVNamespace;
   ASSETS: Fetcher;
   PUBLIC_BASE_URL: string;
+  AUTH_PEPPER: string;
+}
+
+function pepper(env: Env): string {
+  if (!env.AUTH_PEPPER) {
+    throw new Error("AUTH_PEPPER is not configured");
+  }
+  return env.AUTH_PEPPER;
 }
 
 interface LinkRow {
@@ -42,14 +50,18 @@ const PLAN_LIMITS: Record<string, number> = {
 };
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-      ...extraHeaders,
-    },
+  const headers = new Headers({
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
   });
+  for (const [key, value] of Object.entries(extraHeaders)) {
+    if (key.toLowerCase() === "set-cookie") {
+      headers.append("Set-Cookie", value);
+    } else {
+      headers.set(key, value);
+    }
+  }
+  return new Response(JSON.stringify(data), { status, headers });
 }
 
 function error(message: string, status: number, extraHeaders: Record<string, string> = {}): Response {
@@ -67,10 +79,11 @@ function randomId(length = 8): string {
 
 function randomToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 async function hashToken(token: string): Promise<string> {
@@ -188,44 +201,49 @@ export default {
     }
 
     if (url.pathname === "/api/auth/signup" && request.method === "POST") {
-      let body: { email?: string; password?: string };
       try {
-        body = await request.json();
-      } catch {
-        return error("Invalid JSON body.", 400);
+        let body: { email?: string; password?: string };
+        try {
+          body = await request.json();
+        } catch {
+          return error("Invalid JSON body.", 400);
+        }
+        const email = normalizeEmail(body.email ?? "");
+        const password = body.password ?? "";
+        if (!email) return error("Enter a valid email.", 400);
+        if (password.length < 8) return error("Password must be at least 8 characters.", 400);
+
+        const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ?`)
+          .bind(email)
+          .first();
+        if (existing) return error("An account with this email already exists.", 409);
+
+        const userId = randomId(12);
+        const passwordHash = await hashPassword(password, pepper(env));
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO users (id, email, password_hash, plan, created_at) VALUES (?, ?, ?, 'free', ?)`,
+        )
+          .bind(userId, email, passwordHash, now)
+          .run();
+
+        const sessionId = randomToken();
+        await env.DB.prepare(
+          `INSERT INTO sessions (id, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)`,
+        )
+          .bind(sessionId, userId, sessionExpiresAt(), now)
+          .run();
+
+        const maxAge = 30 * 24 * 60 * 60;
+        return json(
+          { user: { id: userId, email, plan: "free" } },
+          201,
+          { "set-cookie": sessionCookieHeader(sessionId, maxAge) },
+        );
+      } catch (err) {
+        console.error("signup failed", err);
+        return error("Could not create account. Try again in a moment.", 500);
       }
-      const email = normalizeEmail(body.email ?? "");
-      const password = body.password ?? "";
-      if (!email) return error("Enter a valid email.", 400);
-      if (password.length < 8) return error("Password must be at least 8 characters.", 400);
-
-      const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ?`)
-        .bind(email)
-        .first();
-      if (existing) return error("An account with this email already exists.", 409);
-
-      const userId = randomId(12);
-      const passwordHash = await hashPassword(password);
-      const now = new Date().toISOString();
-      await env.DB.prepare(
-        `INSERT INTO users (id, email, password_hash, plan, created_at) VALUES (?, ?, ?, 'free', ?)`,
-      )
-        .bind(userId, email, passwordHash, now)
-        .run();
-
-      const sessionId = randomToken();
-      await env.DB.prepare(
-        `INSERT INTO sessions (id, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)`,
-      )
-        .bind(sessionId, userId, sessionExpiresAt(), now)
-        .run();
-
-      const maxAge = 30 * 24 * 60 * 60;
-      return json(
-        { user: { id: userId, email, plan: "free" } },
-        201,
-        { "set-cookie": sessionCookieHeader(sessionId, maxAge) },
-      );
     }
 
     if (url.pathname === "/api/auth/login" && request.method === "POST") {
@@ -244,7 +262,7 @@ export default {
       )
         .bind(email)
         .first<{ id: string; email: string; password_hash: string; plan: string }>();
-      if (!user || !(await verifyPassword(password, user.password_hash))) {
+      if (!user || !(await verifyPassword(password, user.password_hash, pepper(env)))) {
         return error("Invalid email or password.", 401);
       }
 

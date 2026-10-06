@@ -1,6 +1,5 @@
 const SESSION_COOKIE = "osqr_session";
 const SESSION_DAYS = 30;
-const PBKDF2_ITERATIONS = 120_000;
 
 export interface SessionUser {
   id: string;
@@ -20,47 +19,54 @@ function hexToBytes(hex: string): Uint8Array {
   return out;
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return `pbkdf2$${PBKDF2_ITERATIONS}$${bytesToHex(salt)}$${bytesToHex(new Uint8Array(bits))}`;
+/** Edge-friendly password hash (pepper + salt + SHA-256). */
+export async function hashPassword(password: string, pepper: string): Promise<string> {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const salt = bytesToHex(saltBytes);
+  const msg = new TextEncoder().encode(`${pepper}\0${salt}\0${password}`);
+  const digest = await crypto.subtle.digest("SHA-256", msg);
+  return `s256$${salt}$${bytesToHex(new Uint8Array(digest))}`;
 }
 
-export async function verifyPassword(password: string, stored: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  stored: string,
+  pepper: string,
+): Promise<boolean> {
   const parts = stored.split("$");
-  if (parts.length !== 4 || parts[0] !== "pbkdf2") return false;
-  const iterations = Number(parts[1]);
-  const salt = hexToBytes(parts[2]);
-  const expected = parts[3];
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return bytesToHex(new Uint8Array(bits)) === expected;
+  if (parts.length === 3 && parts[0] === "s256") {
+    const salt = parts[1];
+    const expected = parts[2];
+    const msg = new TextEncoder().encode(`${pepper}\0${salt}\0${password}`);
+    const digest = await crypto.subtle.digest("SHA-256", msg);
+    return bytesToHex(new Uint8Array(digest)) === expected;
+  }
+
+  // Legacy PBKDF2 hashes from early deploys (local dev only).
+  if (parts.length === 4 && parts[0] === "pbkdf2") {
+    const iterations = Number(parts[1]);
+    const salt = hexToBytes(parts[2]);
+    const expected = parts[3];
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"],
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+      key,
+      256,
+    );
+    return bytesToHex(new Uint8Array(bits)) === expected;
+  }
+
+  return false;
 }
 
 export function sessionCookieHeader(sessionId: string, maxAgeSec: number): string {
-  const secure = "Secure; ";
-  return `${SESSION_COOKIE}=${sessionId}; Path=/; HttpOnly; ${secure}SameSite=Lax; Max-Age=${maxAgeSec}`;
+  return `${SESSION_COOKIE}=${sessionId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSec}`;
 }
 
 export function clearSessionCookieHeader(): string {

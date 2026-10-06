@@ -153,6 +153,11 @@
               />
               <button type="submit" class="btn btn--primary" id="auth-submit">Sign in</button>
               <p id="auth-error" class="status error hidden"></p>
+              <p class="hint auth-security">
+                Passwords are sent over HTTPS and stored as one-way hashes — we never save your
+                plain password. (Browser dev tools may show the request body; that is normal for
+                sign-in forms.)
+              </p>
               <p class="hint" id="auth-switch"></p>
             </form>
           </div>
