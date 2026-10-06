@@ -1,12 +1,13 @@
 # Ownstage QR
 
-Simple dynamic QR codes for Ownstage: create once, change the destination anytime. No accounts — you keep a private edit token.
+Simple dynamic QR codes for Ownstage: create once, change the destination anytime. **Accounts** save your codes so you can come back from any device; `plan` on each user is ready for paid tiers later.
 
 ## How it works
 
-1. Enter a destination URL and create a QR code.
-2. The QR encodes a short redirect link (`/r/{id}`).
-3. Update the destination from the manage page using your edit token (saved in this browser or via bookmark).
+1. Create a free account and sign in.
+2. Enter a destination URL and create a QR code (encodes `/r/{id}`).
+3. Update destinations from **My QR codes** or the manage page.
+4. Legacy anonymous codes (KV-only) still work with an edit token.
 
 Built for [Ownstage](https://ownstage.app) branding and deployed on Cloudflare Workers + KV.
 

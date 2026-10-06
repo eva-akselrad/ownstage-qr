@@ -12,5 +12,11 @@ not_found_handling = "single-page-application"
 binding = "LINKS"
 id = "ebdb2ce6f1c44374afd270534ae4ac12"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "ownstage-qr"
+database_id = "242a892d-586e-45dc-90eb-e68af8754b63"
+migrations_dir = "migrations"
+
 [vars]
 PUBLIC_BASE_URL = "https://ownstage-qr.scienceandfire66.workers.dev"

@@ -6,7 +6,7 @@
     <title>Ownstage QR — Dynamic links</title>
     <meta
       name="description"
-      content="Create a QR code once and change where it points anytime. No account required."
+      content="Create dynamic QR codes, save them to your account, and change destinations anytime."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,8 +20,17 @@
     <header class="site-header">
       <a class="brand" href="/">Ownstage</a>
       <span class="brand-tag">QR</span>
-      <nav>
+      <nav class="site-nav" id="site-nav">
         <a href="https://ownstage.app" target="_blank" rel="noopener noreferrer">ownstage.app</a>
+        <span id="nav-auth-guest">
+          <a href="/login">Sign in</a>
+          <a class="btn btn-ghost btn-sm" href="/signup">Create account</a>
+        </span>
+        <span id="nav-auth-user" class="hidden">
+          <a href="/dashboard">My QR codes</a>
+          <span id="nav-user-email" class="nav-email"></span>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Sign out</button>
+        </span>
       </nav>
     </header>
 
@@ -30,11 +39,16 @@
         <p class="eyebrow">Dynamic QR</p>
         <h1>One code. Change the link anytime.</h1>
         <p class="lede">
-          Print or share a single QR code. When your destination changes, update it here — the
-          code stays the same. No sign-up.
+          Print or share a single QR code. When your destination changes, update it from your
+          account — the code stays the same.
         </p>
 
-        <form id="create-form" class="card">
+        <p id="create-signin-prompt" class="hint card-inset hidden">
+          <a href="/signup">Create a free account</a> or <a href="/login">sign in</a> to save QR
+          codes and edit them later from any device.
+        </p>
+
+        <form id="create-form" class="card hidden">
           <label for="destination">Where should this QR go?</label>
           <input
             id="destination"
@@ -45,13 +59,17 @@
             autocomplete="url"
             required
           />
+          <label for="label">Label (optional)</label>
+          <input
+            id="label"
+            name="label"
+            type="text"
+            placeholder="Spring gala tickets"
+            maxlength="80"
+          />
           <button type="submit" class="btn btn-primary">Create QR code</button>
+          <p id="usage-hint" class="usage-hint"></p>
         </form>
-
-        <p class="hint">
-          You’ll get a private edit link — save it in this browser or bookmark it. We don’t use
-          accounts; the edit link is your key.
-        </p>
       </section>
 
       <section class="hero hidden" id="view-result">
@@ -69,30 +87,40 @@
             </div>
             <p class="label">Current destination</p>
             <p id="current-dest" class="dest"></p>
-            <div class="save-key card-inset">
-              <p class="label">Save this — your edit key</p>
-              <p class="save-key-note">
-                No account: this token is the only way to change the destination later. Copy it
-                or bookmark the manage link.
-              </p>
-              <p class="label">Edit token</p>
-              <div class="copy-row">
-                <code id="edit-token-display"></code>
-                <button type="button" class="btn btn-ghost" id="copy-token">Copy token</button>
-              </div>
-              <p class="label">Manage link</p>
-              <div class="copy-row">
-                <code id="manage-url-display"></code>
-                <button type="button" class="btn btn-ghost" id="copy-manage">Copy link</button>
-              </div>
-            </div>
             <div class="actions">
               <a class="btn btn-primary" id="manage-link" href="#">Update destination</a>
               <button type="button" class="btn btn-ghost" id="download-png">Download PNG</button>
             </div>
+            <p class="hint">Saved to your account — reopen anytime from <a href="/dashboard">My QR codes</a>.</p>
           </div>
         </div>
         <button type="button" class="text-btn" id="new-qr">Create another</button>
+      </section>
+
+      <section class="hero hidden" id="view-dashboard">
+        <p class="eyebrow">Dashboard</p>
+        <h1>My QR codes</h1>
+        <p class="lede" id="dashboard-usage"></p>
+        <div class="dashboard-actions">
+          <a href="/" class="btn btn-primary">New QR code</a>
+        </div>
+        <ul id="link-list" class="link-list"></ul>
+        <p id="link-list-empty" class="hint hidden">No QR codes yet. Create your first one.</p>
+      </section>
+
+      <section class="hero hidden" id="view-auth">
+        <p class="eyebrow" id="auth-eyebrow">Account</p>
+        <h1 id="auth-title">Sign in</h1>
+        <p class="lede" id="auth-lede">Access your saved dynamic QR codes from any device.</p>
+        <form id="auth-form" class="card">
+          <label for="auth-email">Email</label>
+          <input id="auth-email" type="email" autocomplete="email" required />
+          <label for="auth-password">Password</label>
+          <input id="auth-password" type="password" autocomplete="current-password" required minlength="8" />
+          <button type="submit" class="btn btn-primary" id="auth-submit">Sign in</button>
+          <p id="auth-error" class="status error hidden"></p>
+          <p class="hint" id="auth-switch"></p>
+        </form>
       </section>
 
       <section class="hero hidden" id="view-manage">
@@ -107,7 +135,7 @@
             <canvas id="manage-qr" width="200" height="200"></canvas>
           </div>
           <form id="update-form">
-            <label for="new-destination">New destination URL</label>
+            <label for="new-destination">Destination URL</label>
             <input
               id="new-destination"
               type="url"
@@ -115,19 +143,21 @@
               placeholder="https://"
               required
             />
-            <button type="submit" class="btn btn-primary">Save new destination</button>
+            <label for="new-label">Label (optional)</label>
+            <input id="new-label" type="text" maxlength="80" />
+            <button type="submit" class="btn btn-primary">Save changes</button>
           </form>
           <p id="manage-status" class="status" role="status"></p>
         </div>
-        <a href="/" class="text-btn">← Back to create</a>
+        <a href="/dashboard" class="text-btn">← Back to dashboard</a>
       </section>
 
       <section class="hero hidden" id="view-unlock">
         <p class="eyebrow">Manage</p>
         <h1>Enter your edit key</h1>
         <p class="lede">
-          Paste the edit token you saved when you created this QR, or open the manage link from
-          the same device.
+          Legacy QR from before accounts? Paste the edit token you saved at creation, or sign in if
+          this code is on your account.
         </p>
         <form id="unlock-form" class="card">
           <label for="edit-token">Edit token</label>
@@ -135,6 +165,7 @@
           <button type="submit" class="btn btn-primary">Unlock</button>
         </form>
         <p id="unlock-error" class="status error hidden"></p>
+        <p class="hint"><a href="/login">Sign in</a> to manage codes saved to your account.</p>
       </section>
     </main>
 
