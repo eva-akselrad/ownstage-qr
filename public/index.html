@@ -3,11 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ownstage QR</title>
+    <title>Ownstage QR — Dynamic QR codes</title>
+    <meta name="description" content="Create dynamic QR codes under the Ownstage Event Solutions platform — change the destination without reprinting." />
     <meta name="theme-color" content="#0e0c0a" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="application-name" content="Ownstage Event Solutions" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <meta name="description" content="Dynamic QR codes for Ownstage — change the link without reprinting." />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,8 +23,14 @@
   <body class="has-landing-hero">
     <header class="top">
       <div class="top__brand-wrap">
-        <a class="top__brand" href="/">Ownstage</a>
-        <span class="top__tag">QR</span>
+        <a class="top__brand" href="/">
+          <img class="top__mark" src="/branding/mark.svg" width="36" height="36" alt="" />
+          <span class="top__brand-text">
+            Ownstage
+            <span class="top__brand-co">Event Solutions</span>
+          </span>
+        </a>
+        <span class="top__product">QR</span>
       </div>
       <nav class="top__nav" id="site-nav" aria-label="Primary">
         <a href="https://ownstage.app" target="_blank" rel="noopener noreferrer">ownstage.app</a>
@@ -38,7 +48,7 @@
     <div class="workspace">
       <section class="page-view" id="view-create">
         <div class="landing-hero">
-          <div class="landing-hero__media" role="img" aria-hidden="true"></div>
+          <div class="landing-hero__media" role="img" aria-label="Crowd facing a lit stage"></div>
           <div class="landing-hero__veil"></div>
           <div class="landing-hero__inner">
             <h1 class="landing-hero__title">Change the link, not the QR.</h1>
@@ -230,12 +240,16 @@
     </div>
 
     <footer class="foot">
-      <a class="foot__brand" href="https://ownstage.app">Ownstage</a>
+      <a class="foot__brand" href="https://ownstage.app">
+        Ownstage
+        <span class="foot__brand-co">Event Solutions</span>
+      </a>
       <nav class="foot__legal" aria-label="Legal">
+        <a href="https://ownstage.app/branding/" target="_blank" rel="noopener noreferrer">Branding</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/terms.html">Terms</a>
       </nav>
-      <p class="fine">© Eva Akselrad / Ownstage</p>
+      <p class="fine">Dynamic QR codes · © Eva Akselrad</p>
     </footer>
 
     <div id="cookie-banner" class="cookie-banner hidden" role="dialog" aria-label="Cookies">

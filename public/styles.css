@@ -1,17 +1,21 @@
+/* Tokens aligned with https://ownstage.app/branding/ (brand.json / tokens.css) */
 :root {
   --ink: #0e0c0a;
   --ink-soft: #2a241c;
   --muted: #6b6258;
   --paper: #f7f3eb;
+  --paper-tint: #efe8db;
   --amber: #e8a317;
-  --amber-deep: #8a5c00;
+  --amber-deep: #c4840a;
   --spot: #ffd56a;
   --line: rgba(14, 12, 10, 0.12);
+  --success: #1f6b3a;
+  --danger: #9b1c1c;
   --hero-photo: url("https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=2000&q=80");
   --font-display: "Syne", system-ui, sans-serif;
   --font-body: "Public Sans", system-ui, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --radius: 12px;
+  --radius: 10px;
 }
 
 *,
@@ -48,6 +52,11 @@ a {
   text-underline-offset: 0.15em;
 }
 
+::selection {
+  background: rgba(232, 163, 23, 0.35);
+  color: var(--ink);
+}
+
 :focus-visible {
   outline: 2px solid var(--amber);
   outline-offset: 2px;
@@ -67,26 +76,55 @@ a {
 }
 
 .top__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--spot);
   text-decoration: none;
+  line-height: 1.05;
+}
+
+.top__mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.top__brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.top__brand-co {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.88;
+  margin-top: 0.12rem;
 }
 
 .top__brand-wrap {
   display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.55rem;
 }
 
-.top__tag {
+.top__product {
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: rgba(247, 243, 235, 0.72);
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgba(255, 213, 106, 0.35);
+  border-radius: 999px;
 }
 
 .top__nav {
@@ -140,17 +178,15 @@ body.has-landing-hero .workspace {
   position: absolute;
   inset: 0;
   background: var(--hero-photo) center / cover no-repeat;
+  transform: scale(1.04);
 }
 
 .landing-hero__veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(14, 12, 10, 0.35) 0%,
-    rgba(14, 12, 10, 0.82) 70%,
-    rgba(14, 12, 10, 0.95) 100%
-  );
+  background:
+    linear-gradient(105deg, rgba(14, 12, 10, 0.88) 0%, rgba(14, 12, 10, 0.55) 48%, rgba(14, 12, 10, 0.35) 100%),
+    radial-gradient(ellipse at 70% 40%, rgba(232, 163, 23, 0.28), transparent 55%);
 }
 
 .landing-hero__inner {
@@ -166,18 +202,31 @@ body.has-landing-hero .workspace {
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.75rem, 4.5vw, 2.5rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.08;
   max-width: 14ch;
 }
 
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber-deep);
+}
+
 .band {
   padding: 0 clamp(1rem, 4vw, 2rem) 3rem;
+  background: var(--paper);
 }
 
 .band--tint {
   padding-top: 0.5rem;
+  background:
+    linear-gradient(180deg, rgba(232, 163, 23, 0.08), transparent 40%),
+    var(--paper-tint);
 }
 
 .band__inner {
@@ -542,7 +591,7 @@ code {
 }
 
 .status.error {
-  color: #9a3030;
+  color: var(--danger);
 }
 
 .foot {
@@ -554,10 +603,24 @@ code {
 }
 
 .foot__brand {
+  display: inline-flex;
+  flex-direction: column;
   font-family: var(--font-display);
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--spot);
   text-decoration: none;
+  line-height: 1.05;
+}
+
+.foot__brand-co {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(247, 243, 235, 0.75);
+  margin-top: 0.35rem;
 }
 
 .fine {
@@ -624,7 +687,9 @@ code {
 }
 
 body.page-legal {
-  background: var(--paper);
+  background:
+    radial-gradient(1000px 480px at 8% -8%, rgba(232, 163, 23, 0.14), transparent 55%),
+    var(--paper);
 }
 
 body.page-legal .legal {
@@ -633,7 +698,11 @@ body.page-legal .legal {
 
 body.page-legal .top--solid {
   position: sticky;
-  background: var(--ink);
+  background: rgba(14, 12, 10, 0.94);
+}
+
+body.page-legal .top__product {
+  color: rgba(247, 243, 235, 0.72);
 }
 
 .legal {

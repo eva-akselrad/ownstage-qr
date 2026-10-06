@@ -1,0 +1,39 @@
+{
+  "name": "Ownstage Event Solutions",
+  "shortName": "Ownstage",
+  "tagline": "Your event. Your brand. Your door.",
+  "description": "White-label event ticketing for organizers who bring their own audience.",
+  "url": "https://ownstage.app/",
+  "logoText": "Ownstage Event Solutions",
+  "colors": {
+    "ink": "#0e0c0a",
+    "inkSoft": "#2a241c",
+    "muted": "#6b6258",
+    "paper": "#f7f3eb",
+    "paperTint": "#efe8db",
+    "amber": "#e8a317",
+    "amberDeep": "#c4840a",
+    "spot": "#ffd56a",
+    "line": "rgba(14, 12, 10, 0.12)",
+    "success": "#1f6b3a",
+    "danger": "#9b1c1c"
+  },
+  "fonts": {
+    "display": "\"Syne\", system-ui, sans-serif",
+    "body": "\"Public Sans\", system-ui, sans-serif",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap"
+  },
+  "motion": {
+    "ease": "cubic-bezier(0.22, 1, 0.36, 1)"
+  },
+  "assets": {
+    "mark": "assets/mark.svg",
+    "markMonoInk": "assets/mark-mono-ink.svg",
+    "markMonoSpot": "assets/mark-mono-spot.svg",
+    "wordmark": "assets/wordmark.svg",
+    "lockupDark": "assets/lockup-dark.svg",
+    "lockupLight": "assets/lockup-light.svg"
+  },
+  "emailFromName": "Ownstage Event Solutions",
+  "homeHref": "https://ownstage.app/"
+}
