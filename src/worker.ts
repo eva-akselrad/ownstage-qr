@@ -42,12 +42,8 @@ interface LegacyLinkRecord {
 }
 
 const ID_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-const FREE_LINK_LIMIT = 25;
-
-const PLAN_LIMITS: Record<string, number> = {
-  free: FREE_LINK_LIMIT,
-  pro: 500,
-};
+/** Generous cap while the product is free — raise when billing ships. */
+const LINK_LIMIT = 1000;
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
   const headers = new Headers({
@@ -151,8 +147,8 @@ async function resolveDestination(env: Env, id: string): Promise<string | null> 
   return legacy?.url ?? null;
 }
 
-function linkLimitForPlan(plan: string): number {
-  return PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
+function linkLimitForPlan(_plan: string): number {
+  return LINK_LIMIT;
 }
 
 function linkPayload(
@@ -325,7 +321,7 @@ export default {
         .first<{ n: number }>();
       const limit = linkLimitForPlan(user.plan);
       if ((count?.n ?? 0) >= limit) {
-        return error(`Plan limit reached (${limit} QR codes). Upgrade coming soon.`, 403);
+        return error(`You can have up to ${limit} QR codes. Delete one to add another.`, 403);
       }
 
       let body: { url?: string; label?: string };

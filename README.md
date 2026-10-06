@@ -1,6 +1,6 @@
 # Ownstage QR
 
-Simple dynamic QR codes for Ownstage: create once, change the destination anytime. **Accounts** save your codes so you can come back from any device; `plan` on each user is ready for paid tiers later.
+Simple dynamic QR codes for Ownstage: create once, change the destination anytime. Accounts save your codes so you can come back from any device.
 
 ## How it works
 

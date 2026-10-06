@@ -40,10 +40,24 @@ function updateNav() {
   if (currentUser) {
     guest.classList.add("hidden");
     userNav.classList.remove("hidden");
-    document.getElementById("nav-user-email").textContent = currentUser.email;
   } else {
     guest.classList.remove("hidden");
     userNav.classList.add("hidden");
+  }
+}
+
+function updateUsageHints() {
+  const hint = document.getElementById("usage-hint");
+  if (!usage || !currentUser) {
+    hint.classList.add("hidden");
+    hint.textContent = "";
+    return;
+  }
+  if (usage.limit - usage.links <= 50) {
+    hint.textContent = `${usage.links} / ${usage.limit} codes`;
+    hint.classList.remove("hidden");
+  } else {
+    hint.classList.add("hidden");
   }
 }
 
@@ -51,12 +65,7 @@ function updateCreateView() {
   const signedIn = Boolean(currentUser);
   document.getElementById("create-signin-prompt").classList.toggle("hidden", signedIn);
   document.getElementById("create-form").classList.toggle("hidden", !signedIn);
-  const hint = document.getElementById("usage-hint");
-  if (signedIn && usage) {
-    hint.textContent = `${usage.links} of ${usage.limit} QR codes on ${currentUser.plan} plan`;
-  } else {
-    hint.textContent = "";
-  }
+  updateUsageHints();
 }
 
 async function refreshMe() {
@@ -72,12 +81,12 @@ async function refreshMe() {
   updateCreateView();
 }
 
-function wireCopyButton(buttonId, getText, doneLabel = "Copied") {
+function wireCopyButton(buttonId, getText) {
   document.getElementById(buttonId).onclick = async () => {
     const btn = document.getElementById(buttonId);
     await navigator.clipboard.writeText(getText());
     const prev = btn.textContent;
-    btn.textContent = doneLabel;
+    btn.textContent = "Copied";
     setTimeout(() => {
       btn.textContent = prev;
     }, 1500);
@@ -93,8 +102,13 @@ async function openDashboard() {
   await refreshMe();
   show("view-dashboard");
   const data = await api("/api/links");
-  document.getElementById("dashboard-usage").textContent =
-    `${data.links.length} saved QR code${data.links.length === 1 ? "" : "s"} · ${currentUser.plan} plan`;
+  const usageEl = document.getElementById("dashboard-usage");
+  if (usage && usage.limit - data.links.length <= 50) {
+    usageEl.textContent = `${data.links.length} / ${usage.limit} codes`;
+    usageEl.classList.remove("hidden");
+  } else {
+    usageEl.classList.add("hidden");
+  }
   const list = document.getElementById("link-list");
   list.innerHTML = "";
   const empty = document.getElementById("link-list-empty");
@@ -106,16 +120,20 @@ async function openDashboard() {
   for (const link of data.links) {
     const li = document.createElement("li");
     li.className = "link-list-item";
-    const title = link.label || link.destination;
+    let title = link.label;
+    if (!title) {
+      try {
+        title = new URL(link.destination).hostname;
+      } catch {
+        title = link.destination;
+      }
+    }
     li.innerHTML = `
-      <div class="link-list-main">
-        <strong>${escapeHtml(title)}</strong>
-        <code>${escapeHtml(link.shortUrl)}</code>
+      <a class="link-list-hit" href="/manage/${link.id}">
+        <span class="link-list-title">${escapeHtml(title)}</span>
         <span class="link-list-dest">${escapeHtml(link.destination)}</span>
-      </div>
-      <div class="link-list-actions">
-        <a class="btn btn--ghost btn--sm" href="/manage/${link.id}">Edit</a>
-      </div>
+      </a>
+      <code class="link-list-code">${escapeHtml(link.shortUrl)}</code>
     `;
     list.appendChild(li);
   }
@@ -132,16 +150,12 @@ function escapeHtml(text) {
 function showAuth(mode) {
   show("view-auth");
   const isSignup = mode === "signup";
-  document.getElementById("auth-eyebrow").textContent = isSignup ? "Get started" : "Welcome back";
-  document.getElementById("auth-title").textContent = isSignup ? "Create account" : "Sign in";
-  document.getElementById("auth-lede").textContent = isSignup
-    ? "Free account — save QR codes and change destinations anytime."
-    : "Access your saved dynamic QR codes from any device.";
+  document.getElementById("auth-title").textContent = isSignup ? "Sign up" : "Sign in";
   document.getElementById("auth-submit").textContent = isSignup ? "Create account" : "Sign in";
   document.getElementById("auth-password").autocomplete = isSignup ? "new-password" : "current-password";
   document.getElementById("auth-switch").innerHTML = isSignup
-    ? `Already have an account? <a href="/login">Sign in</a>`
-    : `New here? <a href="/signup">Create a free account</a>`;
+    ? `Have an account? <a href="/login">Sign in</a>`
+    : `Need an account? <a href="/signup">Sign up</a>`;
   document.getElementById("auth-error").classList.add("hidden");
   document.getElementById("auth-form").dataset.mode = mode;
 }
@@ -170,7 +184,7 @@ async function openManage(id, bearerToken = null) {
           label: document.getElementById("new-label").value,
         }),
       });
-      status.textContent = "Saved. Scans now go to the new URL.";
+      status.textContent = "Saved.";
     } catch (err) {
       status.textContent = err.message;
       status.classList.add("error");
@@ -191,7 +205,7 @@ function setupUnlock(id) {
         body: JSON.stringify({ token }),
       });
     } catch {
-      err.textContent = "That token doesn’t match this QR.";
+      err.textContent = "Invalid token.";
       err.classList.remove("hidden");
       return;
     }
@@ -201,6 +215,7 @@ function setupUnlock(id) {
 
 async function showResult(data) {
   show("view-result");
+  history.replaceState({}, "", `/qr/${data.id}`);
   document.getElementById("short-url").textContent = data.shortUrl;
   document.getElementById("current-dest").textContent = data.destination;
   document.getElementById("manage-link").href = `/manage/${data.id}`;
@@ -213,10 +228,10 @@ async function showResult(data) {
     downloadBtn.disabled = false;
   } catch (err) {
     console.error(err);
-    alert("Could not draw the QR code. Try refreshing the page.");
+    alert("Couldn't render the QR. Refresh and try again.");
   }
 
-  wireCopyButton("copy-short", () => data.shortUrl, "Copied");
+  wireCopyButton("copy-short", () => data.shortUrl);
 
   downloadBtn.onclick = () => {
     const link = document.createElement("a");
@@ -244,6 +259,23 @@ async function route() {
   }
   if (path === "/dashboard") {
     await openDashboard();
+    return;
+  }
+
+  const qrMatch = path.match(/^\/qr\/([^/]+)$/);
+  if (qrMatch) {
+    try {
+      const info = await api(`/api/links/${qrMatch[1]}`);
+      await showResult({
+        id: info.id,
+        shortUrl: info.shortUrl,
+        destination: info.destination,
+      });
+    } catch {
+      history.replaceState({}, "", "/");
+      show("view-create");
+      updateCreateView();
+    }
     return;
   }
 
@@ -277,8 +309,8 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
       body: JSON.stringify({ email, password }),
     });
     await refreshMe();
-    history.pushState({}, "", "/dashboard");
-    await openDashboard();
+    history.pushState({}, "", "/");
+    route();
   } catch (authErr) {
     err.textContent = authErr.message;
     err.classList.remove("hidden");
@@ -298,6 +330,7 @@ document.getElementById("create-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
   btn.disabled = true;
+  const prev = btn.textContent;
   btn.textContent = "Creating…";
   try {
     const data = await api("/api/links", {
@@ -308,13 +341,14 @@ document.getElementById("create-form").addEventListener("submit", async (e) => {
       }),
     });
     await refreshMe();
-    history.pushState({}, "", `/manage/${data.id}`);
+    document.getElementById("destination").value = "";
+    document.getElementById("label").value = "";
     await showResult(data);
   } catch (err) {
     alert(err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = "Create QR code";
+    btn.textContent = prev;
   }
 });
 
