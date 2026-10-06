@@ -115,6 +115,22 @@ function normalizeEmail(raw: string): string | null {
   return email;
 }
 
+function isUniqueConstraintError(err: unknown): boolean {
+  const msg = String(err);
+  return msg.includes("UNIQUE constraint failed") || msg.includes("SQLITE_CONSTRAINT");
+}
+
+async function findUserByEmail(
+  env: Env,
+  normalizedEmail: string,
+): Promise<{ id: string; email: string; password_hash: string; plan: string } | null> {
+  return env.DB.prepare(
+    `SELECT id, email, password_hash, plan FROM users WHERE lower(trim(email)) = ?`,
+  )
+    .bind(normalizedEmail)
+    .first<{ id: string; email: string; password_hash: string; plan: string }>();
+}
+
 async function getUserFromSession(request: Request, env: Env): Promise<SessionUser | null> {
   const sessionId = readSessionId(request);
   if (!sessionId) return null;
@@ -213,19 +229,25 @@ export default {
         if (!email) return error("Enter a valid email.", 400);
         if (password.length < 8) return error("Password must be at least 8 characters.", 400);
 
-        const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ?`)
-          .bind(email)
-          .first();
-        if (existing) return error("An account with this email already exists.", 409);
+        if (await findUserByEmail(env, email)) {
+          return error("An account with this email already exists. Sign in instead.", 409);
+        }
 
         const userId = randomId(12);
         const passwordHash = await hashPassword(password, pepper(env));
         const now = new Date().toISOString();
-        await env.DB.prepare(
-          `INSERT INTO users (id, email, password_hash, plan, created_at) VALUES (?, ?, ?, 'free', ?)`,
-        )
-          .bind(userId, email, passwordHash, now)
-          .run();
+        try {
+          await env.DB.prepare(
+            `INSERT INTO users (id, email, password_hash, plan, created_at) VALUES (?, ?, ?, 'free', ?)`,
+          )
+            .bind(userId, email, passwordHash, now)
+            .run();
+        } catch (insertErr) {
+          if (isUniqueConstraintError(insertErr)) {
+            return error("An account with this email already exists. Sign in instead.", 409);
+          }
+          throw insertErr;
+        }
 
         const sessionId = randomToken();
         await env.DB.prepare(
@@ -257,11 +279,7 @@ export default {
       const password = body.password ?? "";
       if (!email || !password) return error("Email and password required.", 400);
 
-      const user = await env.DB.prepare(
-        `SELECT id, email, password_hash, plan FROM users WHERE email = ?`,
-      )
-        .bind(email)
-        .first<{ id: string; email: string; password_hash: string; plan: string }>();
+      const user = await findUserByEmail(env, email);
       if (!user || !(await verifyPassword(password, user.password_hash, pepper(env)))) {
         return error("Invalid email or password.", 401);
       }
