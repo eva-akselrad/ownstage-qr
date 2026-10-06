@@ -356,5 +356,19 @@ window.addEventListener("popstate", () => {
   route();
 });
 
+function initCookieBanner() {
+  const key = "osqr-cookie-notice";
+  const banner = document.getElementById("cookie-banner");
+  const accept = document.getElementById("cookie-accept");
+  if (!banner || !accept) return;
+  if (localStorage.getItem(key)) return;
+  banner.classList.remove("hidden");
+  accept.addEventListener("click", () => {
+    localStorage.setItem(key, "1");
+    banner.classList.add("hidden");
+  });
+}
+
+initCookieBanner();
 await refreshMe();
 route();

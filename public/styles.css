@@ -441,6 +441,11 @@ code {
   color: var(--muted);
 }
 
+.hint--fine {
+  font-size: 0.8rem;
+  margin-top: 0.65rem;
+}
+
 .link-list {
   list-style: none;
   margin: 0;
@@ -519,4 +524,96 @@ code {
   .top__nav > a:first-of-type {
     display: none;
   }
+}
+
+.foot__legal {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.65rem;
+}
+
+.foot__legal a {
+  color: rgba(247, 243, 235, 0.72);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.foot__legal a:hover {
+  color: var(--spot);
+}
+
+.cookie-banner {
+  position: fixed;
+  z-index: 40;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  max-width: 28rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--ink);
+  color: rgba(247, 243, 235, 0.9);
+  border: 1px solid rgba(255, 213, 106, 0.25);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.cookie-banner.hidden {
+  display: none;
+}
+
+.cookie-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.cookie-banner a {
+  color: var(--spot);
+  text-decoration: none;
+}
+
+.cookie-banner a:hover {
+  text-decoration: underline;
+}
+
+body.page-legal {
+  background: var(--paper);
+}
+
+body.page-legal .top--solid {
+  position: sticky;
+  background: var(--ink);
+}
+
+.legal {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 4vw, 2rem) 3rem;
+}
+
+.legal h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.legal p,
+.legal ul {
+  color: var(--ink-soft);
+}
+
+.legal ul {
+  padding-left: 1.25rem;
+}
+
+.legal__meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
 }

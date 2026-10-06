@@ -140,6 +140,10 @@
               <button type="submit" class="btn btn--primary btn--block" id="auth-submit">Sign in</button>
               <p id="auth-error" class="status error hidden"></p>
               <p class="hint" id="auth-switch"></p>
+              <p class="hint hint--fine">
+                By continuing you agree to our <a href="/terms.html">Terms</a> and
+                <a href="/privacy.html">Privacy Policy</a>.
+              </p>
             </form>
           </div>
         </div>
@@ -190,8 +194,20 @@
 
     <footer class="foot">
       <a class="foot__brand" href="https://ownstage.app">Ownstage</a>
+      <nav class="foot__legal" aria-label="Legal">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </nav>
       <p class="fine">© Eva Akselrad / Ownstage</p>
     </footer>
+
+    <div id="cookie-banner" class="cookie-banner hidden" role="dialog" aria-label="Cookies">
+      <p>
+        We use a session cookie to keep you signed in.
+        <a href="/privacy.html">Privacy</a>
+      </p>
+      <button type="button" class="btn btn--primary btn--sm" id="cookie-accept">OK</button>
+    </div>
 
     <script type="module" src="/app.js"></script>
   </body>

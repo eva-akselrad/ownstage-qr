@@ -183,6 +183,10 @@ export default {
     }
 
     if (!url.pathname.startsWith("/api/")) {
+      if (url.pathname === "/privacy" || url.pathname === "/terms") {
+        const file = url.pathname === "/privacy" ? "/privacy.html" : "/terms.html";
+        return env.ASSETS.fetch(new Request(new URL(file, url.origin), request));
+      }
       return env.ASSETS.fetch(request);
     }
 
