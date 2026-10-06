@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ownstage QR — Dynamic links</title>
+    <meta
+      name="description"
+      content="Create a QR code once and change where it points anytime. No account required."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Ownstage</a>
+      <span class="brand-tag">QR</span>
+      <nav>
+        <a href="https://ownstage.app" target="_blank" rel="noopener noreferrer">ownstage.app</a>
+      </nav>
+    </header>
+
+    <main id="app">
+      <section class="hero" id="view-create">
+        <p class="eyebrow">Dynamic QR</p>
+        <h1>One code. Change the link anytime.</h1>
+        <p class="lede">
+          Print or share a single QR code. When your destination changes, update it here — the
+          code stays the same. No sign-up.
+        </p>
+
+        <form id="create-form" class="card">
+          <label for="destination">Where should this QR go?</label>
+          <input
+            id="destination"
+            name="destination"
+            type="url"
+            inputmode="url"
+            placeholder="https://your-event.com/tickets"
+            autocomplete="url"
+            required
+          />
+          <button type="submit" class="btn btn-primary">Create QR code</button>
+        </form>
+
+        <p class="hint">
+          You’ll get a private edit link — save it in this browser or bookmark it. We don’t use
+          accounts; the edit link is your key.
+        </p>
+      </section>
+
+      <section class="hero hidden" id="view-result">
+        <p class="eyebrow">Your QR</p>
+        <h1>Ready to share</h1>
+        <div class="result-grid card">
+          <div class="qr-wrap">
+            <canvas id="qr-canvas" width="280" height="280" aria-label="QR code"></canvas>
+          </div>
+          <div class="result-meta">
+            <p class="label">Short link (encoded in QR)</p>
+            <div class="copy-row">
+              <code id="short-url"></code>
+              <button type="button" class="btn btn-ghost" id="copy-short">Copy</button>
+            </div>
+            <p class="label">Current destination</p>
+            <p id="current-dest" class="dest"></p>
+            <div class="actions">
+              <a class="btn btn-primary" id="manage-link" href="#">Update destination</a>
+              <button type="button" class="btn btn-ghost" id="download-png">Download PNG</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="text-btn" id="new-qr">Create another</button>
+      </section>
+
+      <section class="hero hidden" id="view-manage">
+        <p class="eyebrow">Manage</p>
+        <h1>Update destination</h1>
+        <p class="lede">The QR code does not change — only where scans go.</p>
+
+        <div class="card manage-card">
+          <p class="label">Short link</p>
+          <code id="manage-short-url"></code>
+          <div class="qr-wrap small">
+            <canvas id="manage-qr" width="200" height="200"></canvas>
+          </div>
+          <form id="update-form">
+            <label for="new-destination">New destination URL</label>
+            <input
+              id="new-destination"
+              type="url"
+              inputmode="url"
+              placeholder="https://"
+              required
+            />
+            <button type="submit" class="btn btn-primary">Save new destination</button>
+          </form>
+          <p id="manage-status" class="status" role="status"></p>
+        </div>
+        <a href="/" class="text-btn">← Back to create</a>
+      </section>
+
+      <section class="hero hidden" id="view-unlock">
+        <p class="eyebrow">Manage</p>
+        <h1>Enter your edit key</h1>
+        <p class="lede">
+          Paste the edit token you saved when you created this QR, or open the manage link from
+          the same device.
+        </p>
+        <form id="unlock-form" class="card">
+          <label for="edit-token">Edit token</label>
+          <input id="edit-token" type="text" autocomplete="off" required />
+          <button type="submit" class="btn btn-primary">Unlock</button>
+        </form>
+        <p id="unlock-error" class="status error hidden"></p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>White-label event tooling by <a href="https://ownstage.app">Ownstage</a></p>
+      <p class="fine">© Eva Akselrad / Ownstage</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

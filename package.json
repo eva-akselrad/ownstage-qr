@@ -1,0 +1,19 @@
+{
+  "name": "ownstage-qr",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.148.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

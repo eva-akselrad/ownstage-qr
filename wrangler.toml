@@ -1,0 +1,16 @@
+name = "ownstage-qr"
+main = "src/worker.ts"
+compatibility_date = "2025-03-01"
+account_id = "c0bdb071b67899c6590000ba154912e9"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[kv_namespaces]]
+binding = "LINKS"
+id = "ebdb2ce6f1c44374afd270534ae4ac12"
+
+[vars]
+PUBLIC_BASE_URL = "https://ownstage-qr.scienceandfire66.workers.dev"
